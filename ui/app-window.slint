@@ -1,0 +1,116 @@
+import { Button, VerticalBox, HorizontalBox, CheckBox } from "std-widgets.slint";
+
+export component RadioButtonGroup {
+    in-out property <bool> is_checkbox_1  <=> checkbox_1.checked;
+    in-out property <bool> is_checkbox_2  <=> checkbox_2.checked;
+    in-out property <bool> is_checkbox_3  <=> checkbox_3.checked;
+
+    HorizontalBox {
+        checkbox_1 := CheckBox {
+            checked: true;
+            text: "radio_button_1";
+            toggled => {
+                if !is_checkbox_1 { 
+                    is_checkbox_1 = true;
+                }
+                
+                is_checkbox_2 = false;
+
+                is_checkbox_3 = false;
+            }
+        }
+
+        checkbox_2 := CheckBox {
+            text: "radio_button_2";
+            toggled => {
+                is_checkbox_1 = false;
+
+                if !is_checkbox_2 { 
+                    is_checkbox_2 = true;
+                }
+                
+                is_checkbox_3 = false;
+            }
+        }
+
+        checkbox_3 := CheckBox {
+            text: "radio_button_3";
+            toggled => {
+                is_checkbox_1 = false;
+                
+                is_checkbox_2 = false;
+                
+                if !is_checkbox_3 { 
+                    is_checkbox_3 = true;
+                }
+            }
+        }
+    }
+}
+
+
+export component AppWindow inherits Window {
+    in-out property <int> counter: 0;
+    in-out property <bool> mode1;
+    in-out property <bool> mode2;
+    in-out property <bool> mode3;
+    callback request-increase-value();
+    callback request-decrease-value();
+    VerticalBox {
+        Text {
+            text: "Counter: \{root.counter}";
+        }
+
+        CheckBox {
+            width: 15px;
+            height: 15px;
+            text: "Grid Display";
+        }
+
+        RadioButtonGroup {
+        }
+
+        VerticalBox {
+            width: 800px;
+            height: 800px;
+            GridLayout {
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; row: 1; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; row: 2; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; row: 3; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+                Rectangle { border-width: 2px; border-color: white; }
+            }
+        }        
+
+        HorizontalBox {
+            Button {
+                text: "Increase value";
+                width: 400px;
+                clicked => {
+                    root.request-increase-value();
+                }
+            }
+
+            Button {
+                text: "Decrease value";
+                width: 400px;
+                clicked => {
+                    root.request-decrease-value();
+                }
+            }
+        }
+    }  
+}
+
+

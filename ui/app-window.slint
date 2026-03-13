@@ -1,116 +1,215 @@
 import { Button, VerticalBox, HorizontalBox, CheckBox } from "std-widgets.slint";
 
-export component RadioButtonGroup {
-    in-out property <bool> is_checkbox_1  <=> checkbox_1.checked;
-    in-out property <bool> is_checkbox_2  <=> checkbox_2.checked;
-    in-out property <bool> is_checkbox_3  <=> checkbox_3.checked;
+export component PegCell inherits Rectangle {
+    in property <string> name;
+    in-out property <string> hovered_cell;
+    in-out property <string> selected_cell;
 
-    HorizontalBox {
-        checkbox_1 := CheckBox {
-            checked: true;
-            text: "radio_button_1";
-            toggled => {
-                if !is_checkbox_1 { 
-                    is_checkbox_1 = true;
-                }
-                
-                is_checkbox_2 = false;
+    in property <bool> has_peg;
 
-                is_checkbox_3 = false;
-            }
+    callback clicked(name: string);
+
+    background: area.has-hover ? #555 : #333;
+
+    area := TouchArea {
+        clicked => {
+            root.clicked(root.name);
         }
+    }
 
-        checkbox_2 := CheckBox {
-            text: "radio_button_2";
-            toggled => {
-                is_checkbox_1 = false;
-
-                if !is_checkbox_2 { 
-                    is_checkbox_2 = true;
-                }
-                
-                is_checkbox_3 = false;
-            }
-        }
-
-        checkbox_3 := CheckBox {
-            text: "radio_button_3";
-            toggled => {
-                is_checkbox_1 = false;
-                
-                is_checkbox_2 = false;
-                
-                if !is_checkbox_3 { 
-                    is_checkbox_3 = true;
-                }
-            }
-        }
+    // Draw the peg as a circle if has_peg is true
+    Rectangle {
+        width: 10px;
+        height: 10px;
+        border-radius: self.width / 2;
+        background: red;
+        visible: root.has_peg;
+        x: parent.width / 2 - self.width / 2;
+        y: parent.height / 2 - self.height / 2;
     }
 }
 
-
 export component AppWindow inherits Window {
     in-out property <int> counter: 0;
+    in-out property <string> hovered_cell: "";
+    in-out property <string> selected_cell: "";
     in-out property <bool> mode1;
     in-out property <bool> mode2;
     in-out property <bool> mode3;
     callback request-increase-value();
     callback request-decrease-value();
+
     VerticalBox {
-        Text {
-            text: "Counter: \{root.counter}";
-        }
-
-        CheckBox {
-            width: 15px;
-            height: 15px;
-            text: "Grid Display";
-        }
-
-        RadioButtonGroup {
-        }
+        Text { text: "Hovered: \{root.hovered_cell}"; }
+        Text { text: "Selected Start: \{root.selected_cell}"; }
 
         VerticalBox {
-            width: 800px;
-            height: 800px;
+            width: 400px;
+            height: 400px;
             GridLayout {
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; row: 1; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; row: 2; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; row: 3; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-                Rectangle { border-width: 2px; border-color: white; }
-            }
-        }        
-
-        HorizontalBox {
-            Button {
-                text: "Increase value";
-                width: 400px;
-                clicked => {
-                    root.request-increase-value();
+                // Row 1
+                Rectangle { }
+                Rectangle { }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
                 }
-            }
-
-            Button {
-                text: "Decrease value";
-                width: 400px;
-                clicked => {
-                    root.request-decrease-value();
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
                 }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { }
+                Rectangle { }
+                
+                // Row 2
+                Rectangle { row: 1; }
+                Rectangle { }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { }
+                Rectangle { }
+
+                // Row 3
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                    row: 2; 
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+
+                // Row 4
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                    row: 3; 
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+
+                // Row 5
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                    row: 4; 
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+
+                // Row 6
+                Rectangle { row: 5; }
+                Rectangle { }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { }
+                Rectangle { }
+
+                // Row 7
+                Rectangle { row: 6; }
+                Rectangle { }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { 
+                    border-width: 2px;
+                    border-color: white;
+                }
+                Rectangle { }
+                Rectangle { }
             }
         }
-    }  
+    }
 }
-
 

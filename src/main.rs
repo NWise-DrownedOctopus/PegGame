@@ -32,18 +32,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         let state = state_for_hover.borrow();
 
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
-            println!("{:?}", cell);
+           // println!("{:?}", cell);
         }
     });
 
     // Handle clicked events
     let state_for_click = state.clone();
     ui.on_peg_cell_clicked(move |x_pos, y_pos| {
-        let state = state_for_click.borrow();
+        let mut state = state_for_click.borrow_mut();
 
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
-            println!("{:?}", cell);
-        }
+            // println!("{:?}", cell);
+            if state.selected_start.is_none() {
+                state.selected_start = Some((x_pos, y_pos));
+                println!("We selected a peg");
+            }
+            else {
+                if state.selected_end.is_none() {
+                    state.selected_end = Some((x_pos, y_pos));
+                    println!("We selected a Move destination");
+                }                
+            }
+        }        
     });
 
     ui.run()?;

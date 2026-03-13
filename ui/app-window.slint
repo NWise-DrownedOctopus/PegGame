@@ -12,13 +12,15 @@ export component PegCell inherits Rectangle {
     in-out property <string> selected_cell;
     in property <bool> has_peg;
     
-    // callback clicked(name: string);
+    callback clicked(x_pos: int, y_pos: int);
     callback hovered(x_pos: int, y_pos: int);
+
     background: area.has-hover ? #555 : #333;
+    
     area := TouchArea {
-        // clicked => {
-        //     root.clicked(root.name);
-        // }
+        clicked => {
+            root.clicked(root.x_pos, root.y_pos);
+        }
 
         pointer-event(event) => {
             if area.has-hover {
@@ -46,6 +48,10 @@ export component AppWindow inherits Window {
     in-out property <bool> mode1;
     in-out property <bool> mode2;
     in-out property <bool> mode3;
+
+    callback peg_cell_clicked(x_pos: int, y_pos: int);
+    callback peg_cell_hovered(x_pos: int, y_pos: int);
+
     callback request-increase-value();
     callback request-decrease-value();
     VerticalBox {
@@ -72,8 +78,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 0;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -83,8 +94,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 0;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -94,8 +110,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 0;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -116,8 +137,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 1;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -127,8 +153,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 1;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -138,8 +169,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 1;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -155,8 +191,13 @@ export component AppWindow inherits Window {
                     x_pos: 0;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -166,8 +207,13 @@ export component AppWindow inherits Window {
                     x_pos: 1;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -177,8 +223,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -188,8 +239,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -199,8 +255,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -210,8 +271,13 @@ export component AppWindow inherits Window {
                     x_pos: 5;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -221,8 +287,13 @@ export component AppWindow inherits Window {
                     x_pos: 6;
                     y_pos: 2;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -234,8 +305,13 @@ export component AppWindow inherits Window {
                     x_pos: 0;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -245,8 +321,13 @@ export component AppWindow inherits Window {
                     x_pos: 1;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -256,8 +337,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -266,9 +352,13 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 3;
-                    has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -278,8 +368,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -289,8 +384,13 @@ export component AppWindow inherits Window {
                     x_pos: 5;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -300,8 +400,13 @@ export component AppWindow inherits Window {
                     x_pos: 6;
                     y_pos: 3;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -313,8 +418,13 @@ export component AppWindow inherits Window {
                     x_pos: 0;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -324,8 +434,13 @@ export component AppWindow inherits Window {
                     x_pos: 1;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -335,8 +450,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -346,8 +466,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -357,8 +482,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -368,8 +498,13 @@ export component AppWindow inherits Window {
                     x_pos: 5;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -379,8 +514,13 @@ export component AppWindow inherits Window {
                     x_pos: 6;
                     y_pos: 4;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -397,8 +537,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 5;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -408,8 +553,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 5;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -419,8 +569,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 5;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -441,8 +596,13 @@ export component AppWindow inherits Window {
                     x_pos: 2;
                     y_pos: 6;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -452,8 +612,13 @@ export component AppWindow inherits Window {
                     x_pos: 3;
                     y_pos: 6;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 
@@ -463,8 +628,13 @@ export component AppWindow inherits Window {
                     x_pos: 4;
                     y_pos: 6;
                     has_peg: true;
+                    clicked(x_pos, y_pos) => {
+                        root.peg_cell_clicked(x-pos, y-pos);
+                        root.selected_cell = "(\{x-pos}, \{y-pos})";
+                    }
                     hovered(x_pos, y_pos) => {
-                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                        root.peg_cell_hovered(x-pos, y-pos);
+                        root.hovered_cell = "(\{x-pos}, \{y-pos})";
                     }
                 }
 

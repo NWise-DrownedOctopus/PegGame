@@ -2,45 +2,49 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::error::Error;
+use std::rc::Rc;
+use std::cell::RefCell;
+
+mod grid;
+
+use crate::grid::Grid;
 
 slint::include_modules!();
+
+struct GameState {
+    grid: Grid,
+    selected_start: Option<(i32, i32)>,
+    selected_end: Option<(i32, i32)>,
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let ui = AppWindow::new()?;
 
-    let mut board: [bool; 49] = [
-        false, false, true,  true,  true,  false, false,
-        false, false, true,  true,  true,  false, false,
-        true,  true,  true,  true,  true,  true,  true,
-        true,  true,  true,  false, true,  true,  true,
-        true,  true,  true,  true,  true,  true,  true,
-        false, false, true,  true,  true,  false, false,
-        false, false, true,  true,  true,  false, false,
-    ];
+    let state = Rc::new(RefCell::new(GameState {
+        grid: Grid::new(),
+        selected_start: None,
+        selected_end: None,
+    }));
 
-    // Store selected cell
-    let selected_start = std::cell::RefCell::new(None::<usize>);
+    // Handle hovered events
+    let state_for_hover = state.clone();
+    ui.on_peg_cell_hovered(move |x_pos, y_pos| {
+        let state = state_for_hover.borrow();
 
-    // ui.on_try_move(move |name| {
-    //     let index: usize = name.strip_prefix("cell-").unwrap().parse().unwrap();
+        if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
+            println!("{:?}", cell);
+        }
+    });
 
-    //     if let Some(start_index) = selected_start.borrow_mut().take() {
-    //         // Try to perform move from start_index -> index
-    //         let (sr, sc) = (start_index / 7, start_index % 7);
-    //         let (er, ec) = (index / 7, index % 7);
+    // Handle clicked events
+    let state_for_click = state.clone();
+    ui.on_peg_cell_clicked(move |x_pos, y_pos| {
+        let state = state_for_click.borrow();
 
-    //         if is_valid_move(sr, sc, er, ec, &board) {
-    //             execute_move(sr, sc, er, ec, &mut board);
-    //             app.set_board_state(board.to_vec());
-    //         } else {
-    //             println!("Invalid move from {} to {}", start_index, index);
-    //         }
-    //     } else {
-    //         // First click
-    //         *selected_start.borrow_mut() = Some(index);
-    //         app.set_selected_start(name.into());
-    //     }
-    // });
+        if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
+            println!("{:?}", cell);
+        }
+    });
 
     ui.run()?;
 

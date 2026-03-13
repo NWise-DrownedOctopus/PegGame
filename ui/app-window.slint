@@ -1,19 +1,29 @@
-import { Button, VerticalBox, HorizontalBox, CheckBox } from "std-widgets.slint";
+import {
+    Button,
+    VerticalBox,
+    HorizontalBox,
+    CheckBox,
+} from "std-widgets.slint";
 
 export component PegCell inherits Rectangle {
-    in property <string> name;
+    in property <int> x_pos;
+    in property <int> y_pos;
     in-out property <string> hovered_cell;
     in-out property <string> selected_cell;
-
     in property <bool> has_peg;
-
-    callback clicked(name: string);
-
+    
+    // callback clicked(name: string);
+    callback hovered(x_pos: int, y_pos: int);
     background: area.has-hover ? #555 : #333;
-
     area := TouchArea {
-        clicked => {
-            root.clicked(root.name);
+        // clicked => {
+        //     root.clicked(root.name);
+        // }
+
+        pointer-event(event) => {
+            if area.has-hover {
+                root.hovered(root.x_pos, root.y_pos);
+            }
         }
     }
 
@@ -38,178 +48,430 @@ export component AppWindow inherits Window {
     in-out property <bool> mode3;
     callback request-increase-value();
     callback request-decrease-value();
-
     VerticalBox {
-        Text { text: "Hovered: \{root.hovered_cell}"; }
-        Text { text: "Selected Start: \{root.selected_cell}"; }
+        Text {
+            text: "Hovered: \{root.hovered_cell}";
+        }
+
+        Text {
+            text: "Selected Start: \{root.selected_cell}";
+        }
 
         VerticalBox {
             width: 400px;
             height: 400px;
             GridLayout {
-                // Row 1
-                Rectangle { }
-                Rectangle { }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { }
-                Rectangle { }
-                
-                // Row 2
-                Rectangle { row: 1; }
-                Rectangle { }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { }
+        // Row 1
+        Rectangle { }
+
                 Rectangle { }
 
-                // Row 3
-                Rectangle { 
+                PegCell {
                     border-width: 2px;
                     border-color: white;
-                    row: 2; 
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 0;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
                 }
 
-                // Row 4
-                Rectangle { 
+                PegCell {
                     border-width: 2px;
                     border-color: white;
-                    row: 3; 
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 0;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
                 }
 
-                // Row 5
-                Rectangle { 
+                PegCell {
                     border-width: 2px;
                     border-color: white;
-                    row: 4; 
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 0;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
                 }
 
-                // Row 6
-                Rectangle { row: 5; }
-                Rectangle { }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { }
                 Rectangle { }
 
-                // Row 7
-                Rectangle { row: 6; }
                 Rectangle { }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
+
+        // Row 2
+        Rectangle {
+                    row: 1;
                 }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
-                Rectangle { 
-                    border-width: 2px;
-                    border-color: white;
-                }
+
                 Rectangle { }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 1;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 1;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 1;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                Rectangle { }
+
+                Rectangle { }
+
+        // Row 3
+        PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    row: 2;
+                    x_pos: 0;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 1;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 5;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 6;
+                    y_pos: 2;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+        // Row 4
+        PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    row: 3;
+                    x_pos: 0;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 1;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 5;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 6;
+                    y_pos: 3;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+        // Row 5
+        PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    row: 4;
+                    x_pos: 0;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 1;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 5;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 6;
+                    y_pos: 4;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+        // Row 6
+        Rectangle {
+                    row: 5;
+                }
+
+                Rectangle { }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 5;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 5;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 5;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                Rectangle { }
+
+                Rectangle { }
+
+        // Row 7
+        Rectangle {
+                    row: 6;
+                }
+
+                Rectangle { }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 2;
+                    y_pos: 6;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 3;
+                    y_pos: 6;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                PegCell {
+                    border-width: 2px;
+                    border-color: white;
+                    x_pos: 4;
+                    y_pos: 6;
+                    has_peg: true;
+                    hovered(x_pos, y_pos) => {
+                        root.hovered_cell = "x_pos = \{x_pos} y_pos = \{y_pos}";
+                    }
+                }
+
+                Rectangle { }
+
                 Rectangle { }
             }
         }
     }
 }
-

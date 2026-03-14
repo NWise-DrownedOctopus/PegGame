@@ -2,12 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::cell::RefCell;
+use slint::{VecModel, ModelRc, Model};
 use std::error::Error;
 use std::rc::Rc;
 
 mod grid;
 use crate::grid::Grid;
-use crate::grid::Cell;
 
 slint::include_modules!();
 
@@ -24,6 +24,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         selected_start: None,
         selected_end: None,
     }));
+
+    // Build initial model
+    let cells: Vec<CellData> = state.borrow().grid.cells.iter().map(|c| CellData {
+        x_pos: c.x,
+        y_pos: c.y,
+        has_peg: c.has_peg,
+    }).collect();
+
+    let model = ModelRc::new(VecModel::from(cells));
+    ui.borrow().set_cells(model.clone());
 
     // Handle hovered events
     let state_for_hover = state.clone();
@@ -66,8 +76,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 state.selected_end = None;
                             } else {
                                 state.grid.make_move((start_x, start_y), (destination_x, destination_y));
-                                // Update UI to reflect change 
-                                update_ui(&ui_for_hover.borrow_mut(), &state.grid);
+                                update_ui(&model, &state.grid);
                                 state.selected_start = None;
                                 state.selected_end = None;
                             }
@@ -83,9 +92,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn update_ui(ui: &AppWindow, grid: &Grid) {
-    for cell in grid.cells.iter() {
-        let name = format!("cell_{}_{}", cell.x, cell.y);
+fn update_ui(model: &ModelRc<CellData>, grid: &Grid) {
+    for (i, cell) in grid.cells.iter().enumerate() {
+        model.set_row_data(i, CellData {
+            x_pos: cell.x,
+            y_pos: cell.y,
+            has_peg: cell.has_peg,
+        });
     }
 }
 

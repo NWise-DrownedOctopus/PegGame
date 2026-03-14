@@ -1,13 +1,13 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
-use std::cell::RefCell;
 
 mod grid;
-
 use crate::grid::Grid;
+use crate::grid::Cell;
 
 slint::include_modules!();
 
@@ -18,8 +18,7 @@ struct GameState {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let ui = AppWindow::new()?;
-
+    let ui = Rc::new(RefCell::new(AppWindow::new()?));
     let state = Rc::new(RefCell::new(GameState {
         grid: Grid::new(),
         selected_start: None,
@@ -28,17 +27,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Handle hovered events
     let state_for_hover = state.clone();
-    ui.on_peg_cell_hovered(move |x_pos, y_pos| {
+    ui.borrow().on_peg_cell_hovered(move |x_pos, y_pos| {
         let state = state_for_hover.borrow();
 
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
-           // println!("{:?}", cell);
+            // println!("{:?}", cell);
         }
     });
 
     // Handle clicked events
     let state_for_click = state.clone();
-    ui.on_peg_cell_clicked(move |x_pos, y_pos| {
+    let ui_for_hover = ui.clone();
+
+    ui.borrow().on_peg_cell_clicked(move |x_pos, y_pos| {
         let mut state = state_for_click.borrow_mut();
 
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
@@ -46,17 +47,46 @@ fn main() -> Result<(), Box<dyn Error>> {
             if state.selected_start.is_none() {
                 state.selected_start = Some((x_pos, y_pos));
                 println!("We selected a peg");
-            }
-            else {
+            } else {
                 if state.selected_end.is_none() {
                     state.selected_end = Some((x_pos, y_pos));
                     println!("We selected a Move destination");
-                }                
+
+                    if let (Some((start_x, start_y)), Some((destination_x, destination_y))) =
+                        (state.selected_start, state.selected_end)
+                    {
+                        if let (Some(start_cell), Some(destination_cell)) = (
+                            state.grid.get_cell(start_x, start_y),
+                            state.grid.get_cell(destination_x, destination_y),
+                        ) {
+                            let valid_move = state.grid.check_move(start_cell, destination_cell);
+
+                            if !valid_move {
+                                state.selected_start = None;
+                                state.selected_end = None;
+                            } else {
+                                state.grid.make_move((start_x, start_y), (destination_x, destination_y));
+                                // Update UI to reflect change 
+                                update_ui(&ui_for_hover.borrow_mut(), &state.grid);
+                                state.selected_start = None;
+                                state.selected_end = None;
+                            }
+                        }
+                    }
+                }
             }
-        }        
+        }
     });
 
-    ui.run()?;
+    ui.borrow().run()?;
 
     Ok(())
 }
+
+fn update_ui(ui: &AppWindow, grid: &Grid) {
+    for cell in grid.cells.iter() {
+        let name = format!("cell_{}_{}", cell.x, cell.y);
+    }
+}
+
+

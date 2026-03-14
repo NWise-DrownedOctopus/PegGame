@@ -10,6 +10,7 @@ export component PegCell inherits Rectangle {
     in property <int> y_pos;
     in-out property <string> hovered_cell;
     in-out property <string> selected_cell;
+    in-out property <string> name;
     in property <bool> has_peg;
     
     callback clicked(x_pos: int, y_pos: int);
@@ -77,6 +78,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 0;
+                    name: "cell_2_0";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -93,6 +95,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 0;
+                    name: "cell_3_0";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -109,6 +112,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 0;
+                    name: "cell_4_0";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -136,6 +140,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 1;
+                    name: "cell_2_1";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -152,6 +157,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 1;
+                    name: "cell_3_1";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -168,6 +174,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 1;
+                    name: "cell_4_1";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -190,6 +197,7 @@ export component AppWindow inherits Window {
                     row: 2;
                     x_pos: 0;
                     y_pos: 2;
+                    name: "cell_0_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -206,6 +214,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 1;
                     y_pos: 2;
+                    name: "cell_1_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -222,6 +231,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 2;
+                    name: "cell_2_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -238,6 +248,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 2;
+                    name: "cell_3_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -254,6 +265,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 2;
+                    name: "cell_4_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -270,6 +282,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 5;
                     y_pos: 2;
+                    name: "cell_5_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -286,6 +299,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 6;
                     y_pos: 2;
+                    name: "cell_6_2";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -304,6 +318,7 @@ export component AppWindow inherits Window {
                     row: 3;
                     x_pos: 0;
                     y_pos: 3;
+                    name: "cell_0_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -320,6 +335,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 1;
                     y_pos: 3;
+                    name: "cell_1_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -336,6 +352,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 3;
+                    name: "cell_2_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -352,6 +369,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 3;
+                    name: "cell_3_3";
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
                         root.selected_cell = "(\{x-pos}, \{y-pos})";
@@ -367,6 +385,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 3;
+                    name: "cell_4_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -383,6 +402,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 5;
                     y_pos: 3;
+                    name: "cell_5_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -399,6 +419,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 6;
                     y_pos: 3;
+                    name: "cell_6_3";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -417,6 +438,7 @@ export component AppWindow inherits Window {
                     row: 4;
                     x_pos: 0;
                     y_pos: 4;
+                    name: "cell_0_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -433,6 +455,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 1;
                     y_pos: 4;
+                    name: "cell_1_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -449,6 +472,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 4;
+                    name: "cell_2_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -465,6 +489,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 4;
+                    name: "cell_3_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -481,6 +506,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 4;
+                    name: "cell_4_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -497,6 +523,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 5;
                     y_pos: 4;
+                    name: "cell_5_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -513,6 +540,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 6;
                     y_pos: 4;
+                    name: "cell_6_4";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -536,6 +564,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 5;
+                    name: "cell_2_5";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -552,6 +581,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 5;
+                    name: "cell_3_5";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -568,6 +598,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 5;
+                    name: "cell_4_5";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -595,6 +626,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 2;
                     y_pos: 6;
+                    name: "cell_2_6";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -611,6 +643,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 3;
                     y_pos: 6;
+                    name: "cell_3_6";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);
@@ -627,6 +660,7 @@ export component AppWindow inherits Window {
                     border-color: white;
                     x_pos: 4;
                     y_pos: 6;
+                    name: "cell_4_6";
                     has_peg: true;
                     clicked(x_pos, y_pos) => {
                         root.peg_cell_clicked(x-pos, y-pos);

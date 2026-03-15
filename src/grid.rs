@@ -112,6 +112,31 @@ impl Grid {
         }
     }
 
+    pub fn has_any_valid_move(&self) -> bool {
+    for start_cell in self.cells.iter() {
+        if !start_cell.has_peg {
+            continue;
+        }
+
+        let possible_moves = [
+            (start_cell.x + 2, start_cell.y),
+            (start_cell.x - 2, start_cell.y),
+            (start_cell.x, start_cell.y + 2),
+            (start_cell.x, start_cell.y - 2),
+        ];
+
+        for (dest_x, dest_y) in possible_moves {
+            if let Some(dest_cell) = self.get_cell(dest_x, dest_y) {
+                if self.check_move(start_cell, dest_cell) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
+}
+
     pub fn make_move(&mut self, start: (i32, i32), dest: (i32, i32)) {
         let mid_x = (start.0 + dest.0) / 2;
         let mid_y = (start.1 + dest.1) / 2;

@@ -79,6 +79,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 update_ui(&model, &state.grid);
                                 state.selected_start = None;
                                 state.selected_end = None;
+
+                                state.grid.make_move((start_x, start_y), (destination_x, destination_y));
+                                update_ui(&model, &state.grid);
+
+                                if !state.grid.has_any_valid_move() {
+                                    println!("Game Over!");
+                                }
                             }
                         }
                     }

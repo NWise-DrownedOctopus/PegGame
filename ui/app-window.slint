@@ -18,6 +18,7 @@ export component AppWindow inherits Window {
 
     callback peg_cell_clicked(x_pos: int, y_pos: int);
     callback peg_cell_hovered(x_pos: int, y_pos: int);
+    callback new_game_clicked();
 
     VerticalBox {
         Text {
@@ -67,6 +68,13 @@ export component AppWindow inherits Window {
                     x: parent.width / 2 - self.width / 2;
                     y: parent.height / 2 - self.height / 2;
                 }
+            }
+        }
+
+        Button {
+            text: "New Game";
+            clicked => {
+                root.new_game_clicked();
             }
         }
     }

@@ -34,6 +34,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let model = ModelRc::new(VecModel::from(cells));
     ui.borrow().set_cells(model.clone());
+    // let model_for_click = model.clone();
+    let model_for_reset = model.clone();
 
     // Handle hovered events
     let state_for_hover = state.clone();
@@ -92,6 +94,26 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
+    });
+
+    let state_for_reset = state.clone();
+    let ui_for_reset = ui.clone();
+
+    ui.borrow().on_new_game_clicked(move || {
+        let mut state = state_for_reset.borrow_mut();
+
+        // Reset backend state
+        state.grid = Grid::new();
+        state.selected_start = None;
+        state.selected_end = None;
+
+        // Reset UI
+        update_ui(&model_for_reset, &state.grid);
+
+        // Reset displayed labels
+        let ui = ui_for_reset.borrow();
+        ui.set_hovered_cell("".into());
+        ui.set_selected_cell("".into());
     });
 
     ui.borrow().run()?;

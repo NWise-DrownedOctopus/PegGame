@@ -70,7 +70,6 @@ impl Grid {
     }
 
     pub fn check_move(&self, start_cell: &Cell, destination_cell: &Cell) -> bool {
-        println!("We called check_move");
         let dx = (start_cell.x - destination_cell.x).abs();
         let dy = (start_cell.y - destination_cell.y).abs();
 
@@ -162,7 +161,7 @@ mod tests {
         let grid = Grid::new();
 
         let start = grid.get_cell(1, 3).unwrap();
-        let dest = grid.get_cell(3, 3).unwrap();
+        let dest = grid.get_cell(3, 3).unwrap(); // This is the center cell
 
         assert!(grid.check_move(start, dest));
     }
@@ -172,8 +171,92 @@ mod tests {
         let grid = Grid::new();
 
         let start = grid.get_cell(3, 1).unwrap();
-        let dest = grid.get_cell(3, 3).unwrap();
+        let dest = grid.get_cell(3, 3).unwrap(); // This is the center cell
 
         assert!(grid.check_move(start, dest));
+    }
+
+    #[test]
+    fn invalid_move_no_start_peg() {
+        let grid = Grid::new();
+
+        let start = grid.get_cell(3, 3).unwrap(); // This is the center cell
+        let dest = grid.get_cell(3, 1).unwrap();
+
+        assert!(!grid.check_move(start, dest));        
+    }
+
+    #[test]
+    fn invalid_move_destination_occupied() {
+        let grid = Grid::new();
+
+        let start = grid.get_cell(3, 0).unwrap();
+        let dest = grid.get_cell(3, 2).unwrap(); // This cell has a peg
+
+        assert!(!grid.check_move(start, dest));
+    }
+
+    #[test]
+    fn invalid_move_wrong_distance() {
+        let grid = Grid::new();
+
+        let start = grid.get_cell(0, 2).unwrap();
+        let dest = grid.get_cell(3, 2).unwrap(); // This cell is too far
+
+        assert!(!grid.check_move(start, dest));
+    }
+
+    #[test]
+    fn make_move_updates_cells() {
+        let mut grid = Grid::new();
+
+        let start = (3, 1);
+        let dest = (3, 3);
+
+        grid.make_move(start, dest);
+
+        assert!(!grid.get_cell(3, 1).unwrap().has_peg); // start cleared
+        assert!(!grid.get_cell(3, 2).unwrap().has_peg); // middle cleared
+        assert!(grid.get_cell(3, 3).unwrap().has_peg);  // destination filled
+    }
+
+    #[test]
+    fn new_game_has_valid_moves() {
+        let grid = Grid::new();
+
+        assert!(grid.has_any_valid_move());
+    }
+
+    #[test]
+    fn board_with_no_moves_is_game_over() {
+        let mut grid = Grid::new();
+
+        // Clear the board
+        for cell in grid.cells.iter_mut() {
+            cell.has_peg = false;
+        }
+
+        // Adding isolated pegs with no valid moves possible
+        grid.get_cell_mut(0,2).unwrap().has_peg = true;
+        grid.get_cell_mut(6,2).unwrap().has_peg = true;
+        grid.get_cell_mut(3,6).unwrap().has_peg = true;
+
+        assert!(!grid.has_any_valid_move());
+    }
+
+    #[test]
+    fn board_with_single_valid_move() {
+        let mut grid = Grid::new();
+
+        // Clear board
+        for cell in grid.cells.iter_mut() {
+            cell.has_peg = false;
+        }
+
+        // Create one valid jump
+        grid.get_cell_mut(3,1).unwrap().has_peg = true;
+        grid.get_cell_mut(3,2).unwrap().has_peg = true;
+
+        assert!(grid.has_any_valid_move());
     }
 }

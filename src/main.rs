@@ -131,4 +131,36 @@ fn update_ui(model: &ModelRc<CellData>, grid: &Grid) {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
 
+    #[test]
+    fn reset_creates_fresh_game_state() {
+        let mut state = GameState {
+            grid: Grid::new(),
+            selected_start: Some((3,1)),
+            selected_end: Some((3,3)),
+        };
+
+        // modify board to simulate gameplay
+        state.grid.make_move((3,1),(3,3));
+
+        // Reset backend state
+        state.grid = Grid::new();
+        state.selected_start = None;
+        state.selected_end = None;
+
+        // selections should be cleared
+        assert!(state.selected_start.is_none());
+        assert!(state.selected_end.is_none());
+
+        // center should be empty again
+        let center = state.grid.get_cell(3,3).unwrap();
+        assert!(!center.has_peg);
+
+        // peg count should be back to 32
+        let peg_count = state.grid.cells.iter().filter(|c| c.has_peg).count();
+        assert_eq!(peg_count, 32);
+    }
+}

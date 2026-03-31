@@ -15,6 +15,7 @@ struct GameState {
     grid: Grid,
     selected_start: Option<(i32, i32)>,
     selected_end: Option<(i32, i32)>,
+    board_size: i32,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -24,6 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         grid: Grid::new(7),
         selected_start: None,
         selected_end: None,
+        board_size: 7,
     }));
 
     // Build initial model
@@ -72,6 +74,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Update the shared model
         *model_for_size.borrow_mut() = new_model.clone();
+        state.board_size = new_size;
 
         // Update the UI
         let ui = ui_for_size.borrow();
@@ -135,8 +138,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui.borrow().on_new_game_clicked(move || {
         let mut state = state_for_reset.borrow_mut();
 
+        let size = state.board_size;
+
         // Reset backend state
-        state.grid = Grid::new(7);
+        state.grid = Grid::new(size);
         state.selected_start = None;
         state.selected_end = None;
 
@@ -147,6 +152,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let ui = ui_for_reset.borrow();
         ui.set_hovered_cell("".into());
         ui.set_selected_cell("".into());
+        ui.set_board_size(size);
     });
 
     ui.borrow().run()?;

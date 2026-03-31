@@ -19,8 +19,9 @@ struct GameState {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let ui = Rc::new(RefCell::new(AppWindow::new()?));
+    ui.borrow().set_board_size(7);
     let state = Rc::new(RefCell::new(GameState {
-        grid: Grid::new(),
+        grid: Grid::new(7),
         selected_start: None,
         selected_end: None,
     }));
@@ -32,8 +33,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         has_peg: c.has_peg,
     }).collect();
 
-    let model = ModelRc::new(VecModel::from(cells));
-    ui.borrow().set_cells(model.clone());
+    let model = Rc::new(RefCell::new(ModelRc::new(VecModel::from(cells))));
+    ui.borrow().set_cells(model.borrow().clone());
     // let model_for_click = model.clone();
     let model_for_reset = model.clone();
 
@@ -45,6 +46,41 @@ fn main() -> Result<(), Box<dyn Error>> {
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
             // println!("{:?}", cell);
         }
+    });
+
+    // Handle Update to Board Size
+    let ui_for_size = ui.clone();
+    let state_for_size = state.clone();
+    let model_for_size = model.clone();
+
+    ui.borrow().on_board_size_changed(move |new_size| {
+        let mut state = state_for_size.borrow_mut();
+
+        // Rebuild the grid with the new size
+        state.grid = Grid::new(new_size);
+        state.selected_start = None;
+        state.selected_end = None;
+
+        // Build a new model from the new grid cells
+        let new_cells: Vec<CellData> = state.grid.cells.iter().map(|c| CellData {
+            x_pos: c.x,
+            y_pos: c.y,
+            has_peg: c.has_peg,
+        }).collect();
+
+        let new_model = ModelRc::new(VecModel::from(new_cells));
+
+        // Update the shared model
+        *model_for_size.borrow_mut() = new_model.clone();
+
+        // Update the UI
+        let ui = ui_for_size.borrow();
+        ui.set_cells(new_model);
+        ui.set_board_size(new_size);
+
+        // Reset hovered/selected labels
+        ui.set_hovered_cell("".into());
+        ui.set_selected_cell("".into());
     });
 
     // Handle clicked events
@@ -82,9 +118,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 state.selected_start = None;
                                 state.selected_end = None;
 
-                                state.grid.make_move((start_x, start_y), (destination_x, destination_y));
-                                update_ui(&model, &state.grid);
-
                                 if !state.grid.has_any_valid_move() {
                                     println!("Game Over!");
                                 }
@@ -103,7 +136,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut state = state_for_reset.borrow_mut();
 
         // Reset backend state
-        state.grid = Grid::new();
+        state.grid = Grid::new(7);
         state.selected_start = None;
         state.selected_end = None;
 
@@ -121,9 +154,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn update_ui(model: &ModelRc<CellData>, grid: &Grid) {
+fn update_ui(model: &Rc<RefCell<ModelRc<CellData>>>, grid: &Grid) {
+    let model_ref = model.borrow();
     for (i, cell) in grid.cells.iter().enumerate() {
-        model.set_row_data(i, CellData {
+        model_ref.set_row_data(i, CellData {
             x_pos: cell.x,
             y_pos: cell.y,
             has_peg: cell.has_peg,

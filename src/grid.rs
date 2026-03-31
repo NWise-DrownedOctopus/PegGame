@@ -1,5 +1,5 @@
 pub struct Grid {
-    pub cells: [Cell; 33],
+    pub cells: Vec<Cell>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -10,63 +10,43 @@ pub struct Cell {
 }
 
 impl Grid {
-    pub fn new() -> Grid {
-        let mut cells = [Cell { x: 0, y: 0 , has_peg: true}; 33]; // temporary default values
-        let mut index = 0;
+    pub fn new(size: i32) -> Grid {
+        let mut cells = Vec::new();
 
-        // Row 0
-        for x in 2..=4 {
-            cells[index] = Cell { x, y: 0, has_peg: true };
-            index += 1;
+        let mid = size / 2;
+        let arm_half = 1; // since center is always width 3
+
+        for y in 0..size {
+            for x in 0..size {
+                let in_vertical_band = x >= mid - arm_half && x <= mid + arm_half;
+                let in_horizontal_band = y >= mid - arm_half && y <= mid + arm_half;
+
+                if in_vertical_band || in_horizontal_band {
+                    cells.push(Cell {
+                        x,
+                        y,
+                        has_peg: true,
+                    });
+                }
+            }
         }
 
-        // Row 1
-        for x in 2..=4 {
-            cells[index] = Cell { x, y: 1, has_peg: true };
-            index += 1;
+        // Remove center peg
+        if let Some(center) = cells.iter_mut().find(|c| c.x == mid && c.y == mid) {
+            center.has_peg = false;
         }
-
-        // Row 2
-        for x in 0..=6 {
-            cells[index] = Cell { x, y: 2, has_peg: true };
-            index += 1;
-        }
-
-        // Row 3
-        for x in 0..=6 {
-            cells[index] = Cell { x, y: 3, has_peg: true };
-            index += 1;
-        }
-
-        // Row 4
-        for x in 0..=6 {
-            cells[index] = Cell { x, y: 4, has_peg: true };
-            index += 1;
-        }
-
-        // Row 5
-        for x in 2..=4 {
-            cells[index] = Cell { x, y: 5, has_peg: true };
-            index += 1;
-        }
-
-        // Row 6
-        for x in 2..=4 {
-            cells[index] = Cell { x, y: 6, has_peg: true };
-            index += 1;
-        }
-
-        cells[16] = Cell { x: 3, y: 3, has_peg: false};
 
         Grid { cells }
     }
 
     pub fn get_cell(&self, x: i32, y: i32) -> Option<&Cell> {
-        self.cells.iter().find(|cell| cell.x == x && cell.y ==y)
+        self.cells.iter().find(|cell| cell.x == x && cell.y == y)
     }
 
     pub fn get_cell_mut(&mut self, x: i32, y: i32) -> Option<&mut Cell> {
-        self.cells.iter_mut().find(|cell| cell.x == x && cell.y == y)
+        self.cells
+            .iter_mut()
+            .find(|cell| cell.x == x && cell.y == y)
     }
 
     pub fn check_move(&self, start_cell: &Cell, destination_cell: &Cell) -> bool {
@@ -79,16 +59,15 @@ impl Grid {
             println!("An invalid move has been selected, selected invalid cells");
             println!(
                 "start peg: {}, destination peg: {}",
-                start_cell.has_peg,
-                destination_cell.has_peg
+                start_cell.has_peg, destination_cell.has_peg
             );
-            return false
+            return false;
         }
 
         // Lets make sure the cell is the right distance away
         if !((dx == 2 && dy == 0) || (dx == 0 && dy == 2)) {
             println!("An invalid move has been selected, distance incorrect");
-            return false
+            return false;
         }
 
         // Now lets check the middle cell
@@ -102,40 +81,39 @@ impl Grid {
             Some(mid_cell) => {
                 if mid_cell.has_peg == true {
                     println!("A valid move has been selected");
-                    return true
-                }
-                else {
+                    return true;
+                } else {
                     println!("An invalid move has been selected, mid cell has no peg");
-                    return false
+                    return false;
                 }
             }
         }
     }
 
     pub fn has_any_valid_move(&self) -> bool {
-    for start_cell in self.cells.iter() {
-        if !start_cell.has_peg {
-            continue;
-        }
+        for start_cell in self.cells.iter() {
+            if !start_cell.has_peg {
+                continue;
+            }
 
-        let possible_moves = [
-            (start_cell.x + 2, start_cell.y),
-            (start_cell.x - 2, start_cell.y),
-            (start_cell.x, start_cell.y + 2),
-            (start_cell.x, start_cell.y - 2),
-        ];
+            let possible_moves = [
+                (start_cell.x + 2, start_cell.y),
+                (start_cell.x - 2, start_cell.y),
+                (start_cell.x, start_cell.y + 2),
+                (start_cell.x, start_cell.y - 2),
+            ];
 
-        for (dest_x, dest_y) in possible_moves {
-            if let Some(dest_cell) = self.get_cell(dest_x, dest_y) {
-                if self.check_move(start_cell, dest_cell) {
-                    return true;
+            for (dest_x, dest_y) in possible_moves {
+                if let Some(dest_cell) = self.get_cell(dest_x, dest_y) {
+                    if self.check_move(start_cell, dest_cell) {
+                        return true;
+                    }
                 }
             }
         }
-    }
 
-    false
-}
+        false
+    }
 
     pub fn make_move(&mut self, start: (i32, i32), dest: (i32, i32)) {
         let mid_x = (start.0 + dest.0) / 2;
@@ -159,7 +137,7 @@ mod tests {
 
     #[test]
     fn valid_horizontal_jump() {
-        let grid = Grid::new();
+        let grid = Grid::new(7);
 
         let start = grid.get_cell(1, 3).unwrap();
         let dest = grid.get_cell(3, 3).unwrap();
@@ -169,7 +147,7 @@ mod tests {
 
     #[test]
     fn valid_vertical_jump() {
-        let grid = Grid::new();
+        let grid = Grid::new(7);
 
         let start = grid.get_cell(3, 1).unwrap();
         let dest = grid.get_cell(3, 3).unwrap();

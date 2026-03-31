@@ -26,6 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let model = Rc::new(RefCell::new(ModelRc::new(VecModel::from(cells))));
     ui.borrow().set_cells(model.borrow().clone());
+    update_status(&ui, manager.borrow().as_game().get_grid());
 
     // Mode switching
     let manager_for_mode = manager.clone();
@@ -41,6 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             GameManager::new_manual(size)
         };
         update_ui(&model_for_mode, mgr.as_game().get_grid());
+        update_status(&ui_for_mode, mgr.as_game().get_grid());
         let ui = ui_for_mode.borrow();
         ui.set_board_size(size);
         ui.set_is_automated(is_automated); // <-- add this line
@@ -65,6 +67,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let new_model = ModelRc::new(VecModel::from(new_cells));
         *model_for_size.borrow_mut() = new_model.clone();
 
+        update_status(&ui_for_size, mgr.as_game().get_grid());
+
         let ui = ui_for_size.borrow();
         ui.set_cells(new_model);
         ui.set_board_size(new_size);
@@ -75,6 +79,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Manual cell clicks
     let manager_for_click = manager.clone();
     let model_for_click = model.clone();
+    let ui_for_click = ui.clone();
 
     ui.borrow().on_peg_cell_clicked(move |x_pos, y_pos| {
         let mut mgr = manager_for_click.borrow_mut();
@@ -96,6 +101,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             if game.grid.check_move(start_cell, dest_cell) {
                                 game.make_move(start, dest);
                                 update_ui(&model_for_click, &game.grid);
+                                update_status(&ui_for_click, &game.grid);
 
                                 if game.is_game_over() {
                                     println!("Game Over!");
@@ -114,6 +120,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Auto move
     let manager_for_auto = manager.clone();
     let model_for_auto = model.clone();
+    let ui_for_auto = ui.clone();
 
     ui.borrow().on_auto_move_clicked(move || {
         let mut mgr = manager_for_auto.borrow_mut();
@@ -121,6 +128,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if let GameMode::Automated(ref mut game) = mgr.mode {
             if game.make_auto_move() {
                 update_ui(&model_for_auto, &game.grid);
+                update_status(&ui_for_auto, &game.grid);
                 if game.is_game_over() {
                     println!("Game Over!");
                 }
@@ -133,11 +141,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Randomize
     let manager_for_rand = manager.clone();
     let model_for_rand = model.clone();
+    let ui_for_rand = ui.clone();
 
     ui.borrow().on_randomize_clicked(move || {
         let mut mgr = manager_for_rand.borrow_mut();
         mgr.as_game_mut().randomize();
         update_ui(&model_for_rand, mgr.as_game().get_grid());
+        update_status(&ui_for_rand, mgr.as_game().get_grid());
     });
 
     // New game
@@ -149,6 +159,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut mgr = manager_for_reset.borrow_mut();
         mgr.as_game_mut().reset();
         update_ui(&model_for_reset, mgr.as_game().get_grid());
+        update_status(&ui_for_reset, mgr.as_game().get_grid());
 
         let ui = ui_for_reset.borrow();
         ui.set_hovered_cell("".into());
@@ -177,4 +188,16 @@ fn update_ui(model: &Rc<RefCell<ModelRc<CellData>>>, grid: &crate::grid::Grid) {
             has_peg: cell.has_peg,
         });
     }
+}
+
+fn update_status(ui: &Rc<RefCell<AppWindow>>, grid: &crate::grid::Grid) {
+    let peg_count = grid.cells.iter().filter(|c| c.has_peg).count();
+    let game_over = !grid.has_any_valid_move();
+    let ui = ui.borrow();
+    ui.set_is_game_over(game_over);
+    ui.set_status_text(if game_over {
+        "Game Over!".into()
+    } else {
+        format!("Pegs remaining: {}", peg_count).into()
+    });
 }

@@ -19,6 +19,8 @@ export component AppWindow inherits Window {
     in-out property <string> selected_cell: "";
     in-out property <[CellData]> cells;
     in-out property <bool> is_automated: false;
+    in-out property <string> status_text: "Pegs remaining: 0";
+    in-out property <bool> is_game_over: false;
     callback peg_cell_clicked(x_pos: int, y_pos: int);
     callback peg_cell_hovered(x_pos: int, y_pos: int);
     callback game_mode_changed(bool); // true = automated
@@ -27,12 +29,19 @@ export component AppWindow inherits Window {
     callback new_game_clicked();
     callback board_size_changed(int);
     VerticalBox {
-        Text {
-            text: "Hovered: \{root.hovered_cell}";
-        }
+        Rectangle {
+            width: root.cell_size * root.board_size;
+            height: 36px;
+            background: #222;
+            border-radius: 4px;
 
-        Text {
-            text: "Selected Start: \{root.selected_cell}";
+            Text {
+                text: root.status_text;
+                color: root.is_game_over ? red : white;
+                font-size: 14px;
+                vertical-alignment: center;
+                horizontal-alignment: center;
+            }
         }
 
         CheckBox {

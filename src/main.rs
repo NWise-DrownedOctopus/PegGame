@@ -72,6 +72,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     });
 
+    let state_for_randomize = state.clone();
+    let model_for_randomize = model.clone();
+
+    ui.borrow().on_randomize_clicked(move || {
+        let mut state = state_for_randomize.borrow_mut();
+        state.grid.randomize_pegs();
+        update_ui(&model_for_randomize, &state.grid);
+    });
+
     // Handle Update to Board Size
     let ui_for_size = ui.clone();
     let state_for_size = state.clone();

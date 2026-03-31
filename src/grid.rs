@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 pub struct Grid {
     pub cells: Vec<Cell>,
 }
@@ -154,6 +156,17 @@ impl Grid {
         }
         if let Some(dest_cell) = self.get_cell_mut(dest.0, dest.1) {
             dest_cell.has_peg = true;
+        }
+    }
+
+    pub fn randomize_pegs(&mut self) {
+        let peg_count = self.cells.iter().filter(|c| c.has_peg).count();
+        
+        let mut rng = rand::thread_rng();
+        self.cells.shuffle(&mut rng);
+        
+        for (i, cell) in self.cells.iter_mut().enumerate() {
+            cell.has_peg = i < peg_count;
         }
     }
 }

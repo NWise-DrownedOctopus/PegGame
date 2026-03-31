@@ -115,6 +115,33 @@ impl Grid {
         false
     }
 
+    pub fn get_all_valid_moves(&self) -> Vec<((i32, i32), (i32, i32))> {
+        let mut valid_moves = Vec::new();
+
+        for start_cell in self.cells.iter() {
+            if !start_cell.has_peg {
+                continue;
+            }
+
+            let possible_destinations = [
+                (start_cell.x + 2, start_cell.y),
+                (start_cell.x - 2, start_cell.y),
+                (start_cell.x, start_cell.y + 2),
+                (start_cell.x, start_cell.y - 2),
+            ];
+
+            for (dest_x, dest_y) in possible_destinations {
+                if let Some(dest_cell) = self.get_cell(dest_x, dest_y) {
+                    if self.check_move(start_cell, dest_cell) {
+                        valid_moves.push(((start_cell.x, start_cell.y), (dest_x, dest_y)));
+                    }
+                }
+            }
+        }
+
+        valid_moves
+    }
+
     pub fn make_move(&mut self, start: (i32, i32), dest: (i32, i32)) {
         let mid_x = (start.0 + dest.0) / 2;
         let mid_y = (start.1 + dest.1) / 2;

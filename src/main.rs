@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use slint::{VecModel, ModelRc, Model};
 use std::error::Error;
 use std::rc::Rc;
+use rand::seq::SliceRandom;
 
 mod grid;
 use crate::grid::Grid;
@@ -47,6 +48,27 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if let Some(cell) = state.grid.get_cell(x_pos, y_pos) {
             // println!("{:?}", cell);
+        }
+    });
+
+    let state_for_auto = state.clone();
+    let ui_for_auto = ui.clone();
+    let model_for_auto = model.clone();
+
+    ui.borrow().on_auto_move_clicked(move || {
+        let mut state = state_for_auto.borrow_mut();
+
+        let valid_moves = state.grid.get_all_valid_moves();
+
+        if let Some(&(start, dest)) = valid_moves.choose(&mut rand::thread_rng()) {
+            state.grid.make_move(start, dest);
+            update_ui(&model_for_auto, &state.grid);
+
+            if !state.grid.has_any_valid_move() {
+                println!("Game Over!");
+            }
+        } else {
+            println!("No valid moves available.");
         }
     });
 

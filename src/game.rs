@@ -12,6 +12,48 @@ pub trait Game {
     fn reset(&mut self);
 }
 
+// --- Recording ---
+
+pub struct MoveRecord {
+    pub move_number: u32,
+    pub start: (i32, i32),
+    pub end: (i32, i32),
+}
+
+pub struct GameRecorder {
+    pub enabled: bool,
+    pub moves: Vec<MoveRecord>,
+}
+
+impl GameRecorder {
+    pub fn new() -> Self {
+        GameRecorder { enabled: false, moves: Vec::new() }
+    }
+
+    pub fn record(&mut self, start: (i32, i32), end: (i32, i32)) {
+        if self.enabled {
+            let move_number = self.moves.len() as u32 + 1;
+            self.moves.push(MoveRecord { move_number, start, end });
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.moves.clear();
+    }
+
+    pub fn export_to_string(&self) -> String {
+        self.moves.iter()
+            .map(|m| format!(
+                "({}, ({}, {}), ({}, {}))",
+                m.move_number, m.start.0, m.start.1, m.end.0, m.end.1
+            ))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+}
+
+// --- Games ---
+
 pub struct ManualGame {
     pub grid: Grid,
     pub board_size: i32,
@@ -100,6 +142,8 @@ impl AutomatedGame {
     }
 }
 
+// --- Game Manager ---
+
 pub enum GameMode {
     Manual(ManualGame),
     Automated(AutomatedGame),
@@ -107,15 +151,22 @@ pub enum GameMode {
 
 pub struct GameManager {
     pub mode: GameMode,
+    pub recorder: GameRecorder,
 }
 
 impl GameManager {
     pub fn new_manual(size: i32) -> Self {
-        GameManager { mode: GameMode::Manual(ManualGame::new(size)) }
+        GameManager {
+            mode: GameMode::Manual(ManualGame::new(size)),
+            recorder: GameRecorder::new(),
+        }
     }
 
     pub fn new_automated(size: i32) -> Self {
-        GameManager { mode: GameMode::Automated(AutomatedGame::new(size)) }
+        GameManager {
+            mode: GameMode::Automated(AutomatedGame::new(size)),
+            recorder: GameRecorder::new(),
+        }
     }
 
     pub fn as_game(&self) -> &dyn Game {
@@ -141,5 +192,35 @@ impl GameManager {
             GameMode::Manual(g) => g.board_size = size,
             GameMode::Automated(g) => g.board_size = size,
         }
+    }
+
+    /// Make a move and record it if recording is enabled.
+    pub fn make_move(&mut self, start: (i32, i32), dest: (i32, i32)) {
+        self.as_game_mut().make_move(start, dest);
+        self.recorder.record(start, dest);
+    }
+
+    /// Make an auto move (automated mode only) and record it if enabled.
+    pub fn make_auto_move(&mut self) -> bool {
+        if let GameMode::Automated(ref mut game) = self.mode {
+            let valid_moves = game.grid.get_all_valid_moves();
+            if let Some(&(start, dest)) = valid_moves.choose(&mut rand::thread_rng()) {
+                game.grid.make_move(start, dest);
+                self.recorder.record(start, dest);
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Reset the game and clear the move history.
+    pub fn reset(&mut self) {
+        self.as_game_mut().reset();
+        self.recorder.clear();
+    }
+
+    /// Save the recorded moves to a text file.
+    pub fn save_recording(&self, path: &str) -> std::io::Result<()> {
+        std::fs::write(path, self.recorder.export_to_string())
     }
 }

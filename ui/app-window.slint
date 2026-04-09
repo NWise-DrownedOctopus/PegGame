@@ -21,6 +21,7 @@ export component AppWindow inherits Window {
     in-out property <bool> is_automated: false;
     in-out property <string> status_text: "Pegs remaining: 0";
     in-out property <bool> is_game_over: false;
+    in-out property <bool> is_recording: false;
     callback peg_cell_clicked(x_pos: int, y_pos: int);
     callback peg_cell_hovered(x_pos: int, y_pos: int);
     callback game_mode_changed(bool); // true = automated
@@ -28,6 +29,8 @@ export component AppWindow inherits Window {
     callback auto_move_clicked();
     callback new_game_clicked();
     callback board_size_changed(int);
+    callback record_toggled(bool);
+    callback save_recording_clicked();
     VerticalBox {
         Rectangle {
             width: root.cell_size * root.board_size;
@@ -48,6 +51,15 @@ export component AppWindow inherits Window {
             text: "Automated Mode";
             toggled => {
                 root.game_mode_changed(self.checked);
+            }
+        }
+
+        CheckBox {
+            text: "Record Moves";
+            checked: root.is_recording;
+            toggled => {
+                root.is_recording = self.checked;
+                root.record_toggled(self.checked);
             }
         }
 
@@ -107,6 +119,14 @@ export component AppWindow inherits Window {
             text: "Randomize";
             clicked => {
                 root.randomize_clicked();
+            }
+        }
+
+        Button {
+            text: "Save Recording";
+            enabled: root.is_recording;
+            clicked => {
+                root.save_recording_clicked();
             }
         }
 

@@ -98,17 +98,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                             game.grid.get_cell(start.0, start.1),
                             game.grid.get_cell(dest.0, dest.1),
                         ) {
-                            if game.grid.check_move(start_cell, dest_cell) {
-                                game.make_move(start, dest);
-                                update_ui(&model_for_click, &game.grid);
-                                update_status(&ui_for_click, &game.grid);
-
-                                if game.is_game_over() {
-                                    println!("Game Over!");
-                                }
+                            let valid = game.grid.check_move(start_cell, dest_cell);
+                            if valid {
+                                // Drop `game` before calling mgr.make_move()
+                                game.selected_start = None;
+                                game.selected_end = None;
                             } else {
                                 game.selected_start = None;
                                 game.selected_end = None;
+                            }
+
+                            if valid {
+                                mgr.make_move(start, dest); // now safe — `game` ref is gone
+                                update_ui(&model_for_click, mgr.as_game().get_grid());
+                                update_status(&ui_for_click, mgr.as_game().get_grid());
+                                if mgr.as_game().is_game_over() {
+                                    println!("Game Over!");
+                                }
                             }
                         }
                     }
@@ -125,16 +131,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui.borrow().on_auto_move_clicked(move || {
         let mut mgr = manager_for_auto.borrow_mut();
 
-        if let GameMode::Automated(ref mut game) = mgr.mode {
-            if game.make_auto_move() {
-                update_ui(&model_for_auto, &game.grid);
-                update_status(&ui_for_auto, &game.grid);
-                if game.is_game_over() {
-                    println!("Game Over!");
-                }
-            } else {
-                println!("No valid moves available.");
+        if mgr.make_auto_move() {
+            update_ui(&model_for_auto, mgr.as_game().get_grid());
+            update_status(&ui_for_auto, mgr.as_game().get_grid());
+            if mgr.as_game().is_game_over() {
+                println!("Game Over!");
             }
+        } else {
+            println!("No valid moves available.");
         }
     });
 
@@ -157,7 +161,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     ui.borrow().on_new_game_clicked(move || {
         let mut mgr = manager_for_reset.borrow_mut();
-        mgr.as_game_mut().reset();
+        mgr.reset();
         update_ui(&model_for_reset, mgr.as_game().get_grid());
         update_status(&ui_for_reset, mgr.as_game().get_grid());
 
@@ -173,6 +177,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui.borrow().on_peg_cell_hovered(move |x_pos, y_pos| {
         let mgr = manager_for_hover.borrow();
         let _ = mgr.as_game().get_grid().get_cell(x_pos, y_pos);
+    });
+
+    // Record
+    let manager_for_record = manager.clone();
+
+    ui.borrow().on_record_toggled(move |enabled| {
+        manager_for_record.borrow_mut().recorder.enabled = enabled;
+    });
+
+    // Save
+    let manager_for_save = manager.clone();
+
+    ui.borrow().on_save_recording_clicked(move || {
+        let mgr = manager_for_save.borrow();
+        let _ = mgr.save_recording("moves.txt");
     });
 
     ui.borrow().run()?;

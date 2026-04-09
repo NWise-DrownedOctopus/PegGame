@@ -19,9 +19,12 @@ export component AppWindow inherits Window {
     in-out property <string> selected_cell: "";
     in-out property <[CellData]> cells;
     in-out property <bool> is_automated: false;
+    in-out property <bool> is_replaying: false;
     in-out property <string> status_text: "Pegs remaining: 0";
     in-out property <bool> is_game_over: false;
+    in-out property <bool> is_error: false;
     in-out property <bool> is_recording: false;
+
     callback peg_cell_clicked(x_pos: int, y_pos: int);
     callback peg_cell_hovered(x_pos: int, y_pos: int);
     callback game_mode_changed(bool); // true = automated
@@ -31,7 +34,15 @@ export component AppWindow inherits Window {
     callback board_size_changed(int);
     callback record_toggled(bool);
     callback save_recording_clicked();
+    callback load_recording_clicked();
+    callback play_recording_clicked();
+    callback stop_replay_clicked();
+    // Called by the replay thread (via invoke_from_event_loop) once per move.
+    // Rust handles this with on_replay_step; the thread fires it via invoke_replay_step.
+    callback replay_step(start_x: int, start_y: int, end_x: int, end_y: int, is_last: bool);
+
     VerticalBox {
+        // Status / error bar
         Rectangle {
             width: root.cell_size * root.board_size;
             height: 36px;
@@ -40,7 +51,7 @@ export component AppWindow inherits Window {
 
             Text {
                 text: root.status_text;
-                color: root.is_game_over ? red : white;
+                color: root.is_error ? #ff4444 : (root.is_game_over ? red : white);
                 font-size: 14px;
                 vertical-alignment: center;
                 horizontal-alignment: center;
@@ -49,6 +60,7 @@ export component AppWindow inherits Window {
 
         CheckBox {
             text: "Automated Mode";
+            enabled: !root.is_replaying;
             toggled => {
                 root.game_mode_changed(self.checked);
             }
@@ -57,12 +69,14 @@ export component AppWindow inherits Window {
         CheckBox {
             text: "Record Moves";
             checked: root.is_recording;
+            enabled: !root.is_replaying;
             toggled => {
                 root.is_recording = self.checked;
                 root.record_toggled(self.checked);
             }
         }
 
+        // Board
         Rectangle {
             width: root.cell_size * root.board_size;
             height: root.cell_size * root.board_size;
@@ -73,8 +87,9 @@ export component AppWindow inherits Window {
                 y: cell.y_pos * root.cell_size;
                 border-width: 2px;
                 border-color: white;
-                background: touch.has-hover ? #555 : #333;
+                background: (!root.is_replaying && touch.has-hover) ? #555 : #333;
                 touch := TouchArea {
+                    enabled: !root.is_replaying;
                     clicked => {
                         root.peg_cell_clicked(cell.x_pos, cell.y_pos);
                         root.selected_cell = "(\{cell.x_pos}, \{cell.y_pos})";
@@ -102,39 +117,49 @@ export component AppWindow inherits Window {
 
         Button {
             text: "New Game";
-            clicked => {
-                root.new_game_clicked();
-            }
+            enabled: !root.is_replaying;
+            clicked => { root.new_game_clicked(); }
         }
 
         Button {
             text: "Auto Move";
             visible: root.is_automated;
-            clicked => {
-                root.auto_move_clicked();
-            }
+            enabled: !root.is_replaying;
+            clicked => { root.auto_move_clicked(); }
         }
 
         Button {
             text: "Randomize";
-            clicked => {
-                root.randomize_clicked();
-            }
+            enabled: !root.is_replaying;
+            clicked => { root.randomize_clicked(); }
         }
 
         Button {
             text: "Save Recording";
-            enabled: root.is_recording;
-            clicked => {
-                root.save_recording_clicked();
-            }
+            enabled: root.is_recording && !root.is_replaying;
+            clicked => { root.save_recording_clicked(); }
+        }
+
+        Button {
+            text: "Load Recording";
+            enabled: !root.is_replaying;
+            clicked => { root.load_recording_clicked(); }
+        }
+
+        Button {
+            text: "Play Recording";
+            enabled: !root.is_replaying;
+            clicked => { root.play_recording_clicked(); }
+        }
+
+        Button {
+            text: "Stop Replay";
+            visible: root.is_replaying;
+            clicked => { root.stop_replay_clicked(); }
         }
 
         HorizontalBox {
-            Text {
-                text: "Board Size:";
-            }
-
+            Text { text: "Board Size:"; }
             SpinBox {
                 minimum: 5;
                 maximum: 15;

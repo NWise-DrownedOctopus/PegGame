@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::cell::RefCell;
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use slint::{VecModel, ModelRc, Model};
 use std::error::Error;
 use std::rc::Rc;
@@ -8,7 +9,7 @@ use std::rc::Rc;
 mod grid;
 mod game;
 
-use crate::game::{GameManager, GameMode, ManualGame, AutomatedGame, Game};
+use crate::game::{GameManager, GameMode, parse_recording, ReplayMove};
 
 slint::include_modules!();
 
@@ -17,6 +18,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui.borrow().set_board_size(7);
 
     let manager = Rc::new(RefCell::new(GameManager::new_manual(7)));
+
+    // Loaded replay moves stored after a successful Load, ready for Play.
+    let loaded_moves: Rc<RefCell<Option<Vec<ReplayMove>>>> = Rc::new(RefCell::new(None));
+
+    // Shared flag: set false to stop a running replay thread.
+    let replay_running: Arc<AtomicBool> = Arc::new(AtomicBool::new(false));
 
     let cells: Vec<CellData> = manager.borrow().as_game().get_grid().cells.iter().map(|c| CellData {
         x_pos: c.x,
@@ -28,7 +35,39 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui.borrow().set_cells(model.borrow().clone());
     update_status(&ui, manager.borrow().as_game().get_grid());
 
-    // Mode switching
+    // --- replay_step callback ---
+    // The replay thread only carries Send-safe data (moves + atomic flag + Weak<AppWindow>).
+    // Each tick it calls this callback on the UI thread to apply the next move.
+    // Arguments: (start_x, start_y, end_x, end_y, is_last_move)
+    let manager_for_step = manager.clone();
+    let model_for_step   = model.clone();
+    let ui_for_step      = ui.clone();
+    let replay_running_for_step = replay_running.clone();
+
+    ui.borrow().on_replay_step(move |sx, sy, ex, ey, is_last| {
+        let mut mgr = manager_for_step.borrow_mut();
+
+        if !mgr.is_replaying() {
+            return; // stopped externally
+        }
+
+        mgr.as_game_mut().make_move((sx, sy), (ex, ey));
+        update_ui(&model_for_step, mgr.as_game().get_grid());
+
+        if is_last {
+            replay_running_for_step.store(false, Ordering::SeqCst);
+            let size = mgr.board_size();
+            *mgr = GameManager::new_manual(size);
+            drop(mgr);
+
+            let ui = ui_for_step.borrow();
+            ui.set_is_replaying(false);
+            ui.set_is_error(false);
+            ui.set_status_text("Replay complete.".into());
+        }
+    });
+
+    // --- Mode switching ---
     let manager_for_mode = manager.clone();
     let model_for_mode = model.clone();
     let ui_for_mode = ui.clone();
@@ -48,7 +87,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ui.set_is_automated(is_automated);
     });
 
-    // Board size
+    // --- Board size ---
     let manager_for_size = manager.clone();
     let model_for_size = model.clone();
     let ui_for_size = ui.clone();
@@ -76,7 +115,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ui.set_selected_cell("".into());
     });
 
-    // Manual cell clicks
+    // --- Manual cell clicks ---
     let manager_for_click = manager.clone();
     let model_for_click = model.clone();
     let ui_for_click = ui.clone();
@@ -117,7 +156,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     });
 
-    // Auto move
+    // --- Auto move ---
     let manager_for_auto = manager.clone();
     let model_for_auto = model.clone();
     let ui_for_auto = ui.clone();
@@ -136,7 +175,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     });
 
-    // Randomize
+    // --- Randomize ---
     let manager_for_rand = manager.clone();
     let model_for_rand = model.clone();
     let ui_for_rand = ui.clone();
@@ -148,7 +187,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         update_status(&ui_for_rand, mgr.as_game().get_grid());
     });
 
-    // New game
+    // --- New game ---
     let manager_for_reset = manager.clone();
     let model_for_reset = model.clone();
     let ui_for_reset = ui.clone();
@@ -165,7 +204,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ui.set_board_size(mgr.board_size());
     });
 
-    // Hover
+    // --- Hover ---
     let manager_for_hover = manager.clone();
 
     ui.borrow().on_peg_cell_hovered(move |x_pos, y_pos| {
@@ -173,14 +212,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = mgr.as_game().get_grid().get_cell(x_pos, y_pos);
     });
 
-    // Record toggle
+    // --- Record toggle ---
     let manager_for_record = manager.clone();
 
     ui.borrow().on_record_toggled(move |enabled| {
         manager_for_record.borrow_mut().recorder.enabled = enabled;
     });
 
-    // Save recording — opens native OS "Save As" dialog
+    // --- Save recording ---
     let manager_for_save = manager.clone();
 
     ui.borrow().on_save_recording_clicked(move || {
@@ -195,6 +234,126 @@ fn main() -> Result<(), Box<dyn Error>> {
                 eprintln!("Failed to save recording: {}", e);
             }
         }
+    });
+
+    // --- Load recording ---
+    let loaded_moves_for_load = loaded_moves.clone();
+    let ui_for_load = ui.clone();
+
+    ui.borrow().on_load_recording_clicked(move || {
+        let Some(path) = rfd::FileDialog::new()
+            .set_title("Load Recording")
+            .add_filter("Text file", &["txt"])
+            .pick_file()
+        else {
+            return; // user cancelled
+        };
+
+        let ui = ui_for_load.borrow();
+        match parse_recording(&path) {
+            Ok(moves) => {
+                *loaded_moves_for_load.borrow_mut() = Some(moves);
+                ui.set_is_error(false);
+                ui.set_status_text("Recording loaded. Press Play Recording to watch.".into());
+            }
+            Err(msg) => {
+                *loaded_moves_for_load.borrow_mut() = None;
+                ui.set_is_error(true);
+                ui.set_status_text(format!("Error: {}", msg).into());
+            }
+        }
+    });
+
+    // --- Play recording ---
+    // The thread only owns Send-safe data: the moves vec, the atomic flag, and a
+    // Weak<AppWindow>. It fires on_replay_step each tick, which runs on the UI
+    // thread and does all the actual state mutation.
+    let manager_for_play = manager.clone();
+    let model_for_play = model.clone();
+    let loaded_moves_for_play = loaded_moves.clone();
+    let replay_running_for_play = replay_running.clone();
+    let ui_for_play = ui.clone();
+
+    ui.borrow().on_play_recording_clicked(move || {
+        let moves = match loaded_moves_for_play.borrow().clone() {
+            Some(m) => m,
+            None => {
+                let ui = ui_for_play.borrow();
+                ui.set_is_error(true);
+                ui.set_status_text("No recording loaded. Use Load Recording first.".into());
+                return;
+            }
+        };
+
+        let size = manager_for_play.borrow().board_size();
+        *manager_for_play.borrow_mut() = GameManager::new_replay(size, moves.clone());
+
+        update_ui(&model_for_play, manager_for_play.borrow().as_game().get_grid());
+
+        {
+            let ui = ui_for_play.borrow();
+            ui.set_is_replaying(true);
+            ui.set_is_error(false);
+            ui.set_status_text(format!("Replaying {} moves...", moves.len()).into());
+        }
+
+        replay_running_for_play.store(true, Ordering::SeqCst);
+        let running = replay_running_for_play.clone();
+
+        // Weak handle is Send — this is the only thing the thread carries into
+        // invoke_from_event_loop. All Rc/RefCell access stays on the UI thread
+        // inside on_replay_step.
+        let ui_weak = ui_for_play.borrow().as_weak();
+        let total = moves.len();
+
+        std::thread::spawn(move || {
+            for (i, mv) in moves.iter().enumerate() {
+                if !running.load(Ordering::SeqCst) {
+                    break;
+                }
+
+                std::thread::sleep(std::time::Duration::from_secs(1));
+
+                if !running.load(Ordering::SeqCst) {
+                    break;
+                }
+
+                let sx = mv.start.0;
+                let sy = mv.start.1;
+                let ex = mv.end.0;
+                let ey = mv.end.1;
+                let is_last = i + 1 == total;
+
+                // upgrade() and invoke happen on the UI thread — fully Send-safe.
+                let ui_weak_clone = ui_weak.clone();
+                slint::invoke_from_event_loop(move || {
+                    if let Some(ui) = ui_weak_clone.upgrade() {
+                        ui.invoke_replay_step(sx, sy, ex, ey, is_last);
+                    }
+                }).ok();
+            }
+        });
+    });
+
+    // --- Stop replay ---
+    let manager_for_stop = manager.clone();
+    let model_for_stop   = model.clone();
+    let replay_running_for_stop = replay_running.clone();
+    let ui_for_stop = ui.clone();
+
+    ui.borrow().on_stop_replay_clicked(move || {
+        replay_running_for_stop.store(false, Ordering::SeqCst);
+
+        let mut mgr = manager_for_stop.borrow_mut();
+        let size = mgr.board_size();
+        *mgr = GameManager::new_manual(size);
+        update_ui(&model_for_stop, mgr.as_game().get_grid());
+        drop(mgr);
+
+        let ui = ui_for_stop.borrow();
+        ui.set_is_replaying(false);
+        ui.set_is_error(false);
+        ui.set_status_text("Replay stopped.".into());
     });
 
     ui.borrow().run()?;
@@ -216,6 +375,7 @@ fn update_status(ui: &Rc<RefCell<AppWindow>>, grid: &crate::grid::Grid) {
     let peg_count = grid.cells.iter().filter(|c| c.has_peg).count();
     let game_over = !grid.has_any_valid_move();
     let ui = ui.borrow();
+    ui.set_is_error(false);
     ui.set_is_game_over(game_over);
     ui.set_status_text(if game_over {
         "Game Over!".into()

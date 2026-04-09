@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         update_status(&ui_for_mode, mgr.as_game().get_grid());
         let ui = ui_for_mode.borrow();
         ui.set_board_size(size);
-        ui.set_is_automated(is_automated); // <-- add this line
+        ui.set_is_automated(is_automated);
     });
 
     // Board size
@@ -99,17 +99,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                             game.grid.get_cell(dest.0, dest.1),
                         ) {
                             let valid = game.grid.check_move(start_cell, dest_cell);
-                            if valid {
-                                // Drop `game` before calling mgr.make_move()
-                                game.selected_start = None;
-                                game.selected_end = None;
-                            } else {
-                                game.selected_start = None;
-                                game.selected_end = None;
-                            }
+                            game.selected_start = None;
+                            game.selected_end = None;
 
                             if valid {
-                                mgr.make_move(start, dest); // now safe — `game` ref is gone
+                                mgr.make_move(start, dest);
                                 update_ui(&model_for_click, mgr.as_game().get_grid());
                                 update_status(&ui_for_click, mgr.as_game().get_grid());
                                 if mgr.as_game().is_game_over() {
@@ -171,7 +165,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ui.set_board_size(mgr.board_size());
     });
 
-    // Hover (unchanged in behavior)
+    // Hover
     let manager_for_hover = manager.clone();
 
     ui.borrow().on_peg_cell_hovered(move |x_pos, y_pos| {
@@ -179,19 +173,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = mgr.as_game().get_grid().get_cell(x_pos, y_pos);
     });
 
-    // Record
+    // Record toggle
     let manager_for_record = manager.clone();
 
     ui.borrow().on_record_toggled(move |enabled| {
         manager_for_record.borrow_mut().recorder.enabled = enabled;
     });
 
-    // Save
+    // Save recording — opens native OS "Save As" dialog
     let manager_for_save = manager.clone();
 
     ui.borrow().on_save_recording_clicked(move || {
         let mgr = manager_for_save.borrow();
-        let _ = mgr.save_recording("moves.txt");
+        if let Some(path) = rfd::FileDialog::new()
+            .set_title("Save Recording")
+            .add_filter("Text file", &["txt"])
+            .set_file_name("moves.txt")
+            .save_file()
+        {
+            if let Err(e) = mgr.save_recording(&path) {
+                eprintln!("Failed to save recording: {}", e);
+            }
+        }
     });
 
     ui.borrow().run()?;

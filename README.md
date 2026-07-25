@@ -1,38 +1,74 @@
-# Slint Rust Template
+# Peg Solitaire (Rust + Slint)
 
-A template for a Rust application that's using [Slint](https://slint.rs/) for the user interface.
+A desktop implementation of the classic Peg Solitaire board game, built in Rust with [Slint](https://slint.rs/) for the UI. The game supports both manual play and an automated solver mode, with a resizable board and real-time status updates.
 
-## About
+## Features
 
-This template helps you get started developing a Rust application with Slint as toolkit
-for the user interface. It demonstrates the integration between the `.slint` UI markup and
-Rust code, how to react to callbacks, get and set properties, and use basic widgets.
+- **Manual Mode** — Click a peg, then click a destination two cells away to jump it, following standard Peg Solitaire rules (a peg is captured if it's jumped over).
+- **Automated Mode** — Toggle to an auto-play mode where the game selects and executes a valid move for you.
+- **Configurable Board Size** — Adjust the board dimensions and the game grid rebuilds and resets automatically.
+- **Randomize** — Shuffle the current pegs across the board while preserving the total peg count.
+- **New Game / Reset** — Start over at any time.
+- **Live Status Tracking** — Displays remaining peg count and detects when no valid moves remain ("Game Over").
 
-## Usage
+## Tech Stack
 
-1. Install Rust by following its [getting-started guide](https://www.rust-lang.org/learn/get-started).
-   Once this is done, you should have the `rustc` compiler and the `cargo` build system installed in your `PATH`.
-2. Download and extract the [ZIP archive of this repository](https://github.com/slint-ui/slint-rust-template/archive/refs/heads/main.zip).
-3. Rename the extracted directory and change into it:
-    ```
-    mv slint-rust-template-main my-project
-    cd my-project    
-    ```
-4. Build with `cargo`:
-    ```
-    cargo build
-    ```
-5. Run the application binary:
-    ```
-    cargo run
-    ```
+- **Language:** Rust
+- **UI Framework:** [Slint](https://slint.rs/) (`.slint` markup + Rust callbacks)
+- **Key Dependencies:**
+  - `slint` / `slint-build` — UI rendering and code generation
+  - `rand` — board randomization and automated move selection
 
-We recommend using an IDE for development, along with our [LSP-based IDE integration for `.slint` files](https://github.com/slint-ui/slint/blob/master/tools/lsp/README.md). You can also load this project directly in [Visual Studio Code](https://code.visualstudio.com) and install our [Slint extension](https://marketplace.visualstudio.com/items?itemName=Slint.slint).
+## Project Structure
 
-## Next Steps
+```
+├── src/
+│   ├── main.rs      # App entry point, UI wiring, and event callbacks
+│   ├── game.rs       # Game trait, ManualGame/AutomatedGame implementations, GameManager
+│   └── grid.rs       # Board/grid logic: move validation, jump execution, win/loss detection
+├── ui/
+│   └── app-window.slint   # Slint UI markup (board rendering, controls, styling)
+├── Cargo.toml
+└── Cargo.lock
+```
 
-We hope that this template helps you get started, and that you enjoy exploring making user interfaces with Slint. To learn more
-about the Slint APIs and the `.slint` markup language, check out our [online documentation](https://slint.dev/docs).
+## Getting Started
 
-Don't forget to edit this readme to replace it by yours, and edit the `name =` field in `Cargo.toml` to match the name of your
-project.
+### Prerequisites
+
+- Rust and Cargo — install via the [official guide](https://www.rust-lang.org/learn/get-started)
+
+### Build
+
+```bash
+cargo build
+```
+
+### Run
+
+```bash
+cargo run
+```
+
+### Test
+
+Unit tests for core game/grid logic (move validation, jump legality, etc.) live alongside the code in `src/grid.rs`:
+
+```bash
+cargo test
+```
+
+## How to Play
+
+1. Launch the app — you'll start in **Manual Mode** with a default board.
+2. Click a peg to select it, then click a cell two spaces away (horizontally or vertically) to jump over and capture the peg in between.
+3. Continue until no more valid moves remain, or switch on **Automated Mode** to watch the solver play instead.
+4. Use **Randomize** to shuffle the board, adjust the **board size** control to change difficulty, or hit **New Game** to reset.
+
+## Development Notes
+
+This project was built iteratively across multiple sprints, with each phase adding functionality (manual play → automated play → board resizing → testing/refactoring). Code reviews and test coverage reviews were conducted as part of the development process to improve code quality and catch design issues early.
+
+## License
+
+Add your license of choice here (e.g., MIT).
